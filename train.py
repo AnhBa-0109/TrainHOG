@@ -1,37 +1,16 @@
 import os
-import cv2
 import numpy as np
-from skimage.feature import hog
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 import joblib
 
+from feature_extraction import extract_features
+
 # THÊM 3 DÒNG NÀY VÀO ĐỂ FIX LỖI TIẾNG VIỆT
 import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-
-def extract_features(image_path):
-    """ Hàm trích xuất đặc trưng (Giống hệt chương trình nhận diện) """
-    img = cv2.imread(image_path)
-    if img is None:
-        return None
-        
-    img_resized = cv2.resize(img, (128, 128))
-    
-    # Đặc trưng HOG (Hình dáng)
-    gray_img = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
-    hog_features = hog(gray_img, orientations=9, pixels_per_cell=(8, 8),
-                       cells_per_block=(2, 2), block_norm='L2-Hys', visualize=False)
-    
-    # Đặc trưng Màu sắc (Color Histogram)
-    hist_b = cv2.calcHist([img_resized], [0], None, [32], [0, 256]).flatten()
-    hist_g = cv2.calcHist([img_resized], [1], None, [32], [0, 256]).flatten()
-    hist_r = cv2.calcHist([img_resized], [2], None, [32], [0, 256]).flatten()
-    color_features = np.hstack([hist_b, hist_g, hist_r])
-    
-    return np.hstack([hog_features, color_features])
 
 def train_svm_model(dataset_path, model_save_path):
     X = [] # Chứa các vector đặc trưng
